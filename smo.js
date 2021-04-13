@@ -22,7 +22,9 @@ for (let i = 0; i <= time; i++) {
 	if (i === timeNewApp) {
 		timeNewApp = getTimeNewApp()
 
-		if (!i) {
+        
+
+		if (i) {
 			if (apps.length === n) {
 				refusalAppsCount++
 			} else {
@@ -45,11 +47,35 @@ for (let i = 0; i <= time; i++) {
 				}
 
 				if ((apps.length + 1) * l > n && apps.length < n) {
-					//let freeChannels =
-					apps = apps.map((app) => {
-						app.serviceTime =
-							i - app.arrivalTimeApp + getServiceTime()
-					})
+					if (apps.length > 1) {
+						apps.sort((prev, next) => {
+							if (prev.workingChannels < next.workingChannels) {
+								return 1
+							}
+							if (prev.workingChannels > next.workingChannels) {
+								return -1
+							}
+							return 0
+						})
+
+						if (apps[0].workingChannels > 1) {
+							apps[0].workingChannels -= 1
+							apps[0].serviceTime =
+								i -
+								apps[0].arrivalTimeApp +
+								getServiceTime(apps[0].workingChannels)
+
+							newApp.serviceTime = getServiceTime(1)
+							newApp.workingChannels = 1
+						} else {
+							let remainderChannels = n - apps[0].workingChannels
+
+							newApp.serviceTime = getServiceTime(
+								remainderChannels
+							)
+							newApp.workingChannels = remainderChannels
+						}
+					}
 				}
 			}
 		}
