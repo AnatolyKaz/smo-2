@@ -13,12 +13,13 @@ let freeTimeCount = 0 //время простоя системы
 let apps = [] //массив заявок на обслуживании
 
 for (let i = 0; i <= time; i++) {
+	
 	apps = apps.length
 		? apps.filter((app) => {
 				if (app.serviceTime + app.arrivalTimeApp === i) {
+					debugger
 					freeChannels += app.workingChannels
 					countApps.push(app)
-					apps = redistributionChannels(apps, i)
 					return 0
 				} else {
 					return 1
@@ -26,10 +27,14 @@ for (let i = 0; i <= time; i++) {
 		})
 		: apps
 
+		if (freeChannels) {
+			apps = redistributionChannels(apps, i)
+		}
+	
 	timeNewApp = i ? timeNewApp : getTimeNewApp(i)
 
 	if (i === timeNewApp) {
-		debugger
+		
 
 		allApps++
 		timeNewApp = getTimeNewApp(i)
@@ -41,10 +46,6 @@ for (let i = 0; i <= time; i++) {
 				serviceTime: getServiceTime(l),
 				arrivalTimeApp: i,
 				workingChannels: l,
-			}
-
-			if (!apps.length) {
-				
 			}
 
 			if (!apps.length && l <= n) {
@@ -77,6 +78,8 @@ for (let i = 0; i <= time; i++) {
 						)
 						apps[0] = recalcChannels.currentApp
 						newApp = recalcChannels.newApp
+						apps.push(newApp)
+						continue
 					}
 				} else if (l === n && apps.length === 1) {
 					let recalcChannels = recalcServiceTimeApp(
@@ -86,14 +89,16 @@ for (let i = 0; i <= time; i++) {
 					)
 					apps[0] = recalcChannels.currentApp
 					newApp = recalcChannels.newApp
+					apps.push(newApp)
 				} else {
 					let remainderChannels = n - apps[0].workingChannels
 
 					newApp.serviceTime = getServiceTime(remainderChannels)
 					newApp.workingChannels = remainderChannels
+					apps.push(newApp)
 				}
 
-				apps.push(newApp)
+				
 			}
 		}
 	}
@@ -105,18 +110,25 @@ for (let i = 0; i <= time; i++) {
 
 function redistributionChannels(apps, i){
 
-	apps = sortByWorkingChannels(apps, '<')
+	if (apps.length) {
+		apps = sortByWorkingChannels(apps, '<')
 
-	for (let j = 0; j < apps.length; j++) {
-		while (freeChannels){
-			if (apps[j].workingChannels < 3){
-				apps[j].workingChannels += 1
-				apps[j].serviceTime = i - apps[0].arrivalTimeApp + getServiceTime(apps[0].workingChannels)
-			} else {
-				break
+		for (let j = 0; j < apps.length; j++) {
+			while (freeChannels) {
+				if (apps[j].workingChannels < 3) {
+					apps[j].workingChannels += 1
+					freeChannels -= 1
+					apps[j].serviceTime =
+						i -
+						apps[0].arrivalTimeApp +
+						getServiceTime(apps[0].workingChannels)
+				} else {
+					break
+				}
 			}
 		}
 	}
+	
 
 	return apps
 }
@@ -179,8 +191,8 @@ function getRandom(){
 }
 
 
-console.log(refusalAppsCount)
-console.log(freeTimeCount)
-console.log(countApps.length)
-console.log(allApps)
-console.log(`Pser: ${(1 - (refusalAppsCount/allApps))}` )
+console.log('заявки с отказом' + ' ' + refusalAppsCount)
+console.log('время простоя' + ' ' + freeTimeCount)
+console.log('выполненные заявки' + ' ' + countApps.length)
+console.log('Все пришедшие заявки' + ' ' + allApps)
+console.log(`Вероятность обслуживания: ${(1 - (refusalAppsCount/allApps))}` )
