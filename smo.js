@@ -2,44 +2,12 @@ let data = []
 
 statisticCalcParam()
 
-function statisticCalcParam() {
-	for (let i = 0; i < 1000; i++) {
-		imitation()
-	}
-	data.sort((prev, next) => {
-		if (prev.allApps < next.allApps) {
-			return 1
-		}
-		if (prev.allApps > next.allApps) {
-			return -1
-		}
-		return 0
-	})
-
-	let mostWorkingChannels = data.splice(0,9)
-	let sumProbServ = 0
-	let sumFreeTime = 0
-
-	mostWorkingChannels.forEach((app) => {
-		sumProbServ += app.probabilityService
-		sumFreeTime += app.freeTimeCount
-	})
-
-	let midProbServ = sumProbServ / 10
-	let midFreeTime = sumFreeTime / 10
-
-	console.log("\n");
-	console.log(`средняя вероятность обслуживания: ${midProbServ}`)
-	console.log(`среднее время простоя: ${midFreeTime}`)
-	console.log('\n')
-
-}
 
 function imitation() {
-	const time = 36000 //с
+	const time = 3600 //с
 	const lambda = 0.09445
 	const mu = 0.01425
-	const n = 5
+	const n = 3
 	const l = 3
 
 	let freeChannels = n
@@ -62,7 +30,7 @@ function imitation() {
 					} else {
 						return 1
 					}
-			  })
+			})
 			: apps
 
 		if (freeChannels) {
@@ -144,10 +112,12 @@ function imitation() {
 	}
 	////=======main cycle==================
 	///===========calc parameters============
+	let probabilityChannelBusyTime =(time - freeTimeCount) / time / n
 	const parameters = {
 		allApps,
 		probabilityService: 1 - refusalAppsCount / allApps,
 		freeTimeCount,
+		probabilityChannelBusyTime,
 	}
 	data.push(parameters)
 	///===========calc parameters============
@@ -234,4 +204,41 @@ function imitation() {
 }
 
 
+function statisticCalcParam() {
+	for (let i = 0; i < 1000; i++) {
+		imitation()
+	}
+	data.sort((prev, next) => {
+		if (prev.allApps < next.allApps) {
+			return 1
+		}
+		if (prev.allApps > next.allApps) {
+			return -1
+		}
+		return 0
+	})
 
+	let mostWorkingChannels = data.splice(0, 9)
+	let sumProbServ = 0
+	let sumFreeTime = 0
+	let channelBusyTime = 0
+	let countApps = 0
+
+	mostWorkingChannels.forEach((app) => {
+		countApps += app.allApps
+		sumProbServ += app.probabilityService
+		sumFreeTime += app.freeTimeCount
+		channelBusyTime += app.probabilityChannelBusyTime
+	})
+
+	let midProbServ = sumProbServ / 10
+	let midFreeTime = sumFreeTime / 10
+	let midProbBusyChannel = channelBusyTime / 10
+
+	console.log('\n')
+	console.log(`среднее количество пришедших заявок: ${countApps / 10}`)
+	console.log(`средняя вероятность обслуживания: ${midProbServ}`)
+	console.log(`среднее время простоя: ${midFreeTime / 60} мин`)
+	console.log(`Вероятность занятости канала: ${midProbBusyChannel} мин`)
+	console.log('\n')
+}

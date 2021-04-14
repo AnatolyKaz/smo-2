@@ -1,40 +1,3 @@
-let data = []
-
-statisticCalcParam()
-
-function statisticCalcParam() {
-	for (let i = 0; i < 1000; i++) {
-		imitation()
-	}
-	data.sort((prev, next) => {
-		if (prev.allApps < next.allApps) {
-			return 1
-		}
-		if (prev.allApps > next.allApps) {
-			return -1
-		}
-		return 0
-	})
-
-	let mostWorkingChannels = data.splice(0,9)
-	let sumProbServ = 0
-	let sumFreeTime = 0
-
-	mostWorkingChannels.forEach((app) => {
-		sumProbServ += app.probabilityService
-		sumFreeTime += app.freeTimeCount
-	})
-
-	let midProbServ = sumProbServ / 10
-	let midFreeTime = sumFreeTime / 10
-
-	console.log("\n");
-	console.log(`средняя вероятность обслуживания: ${midProbServ}`)
-	console.log(`среднее время простоя: ${midFreeTime}`)
-	console.log('\n')
-
-}
-
 function imitation() {
 	const time = 36000 //с
 	const lambda = 0.09445
@@ -143,14 +106,7 @@ function imitation() {
 		}
 	}
 	////=======main cycle==================
-	///===========calc parameters============
-	const parameters = {
-		allApps,
-		probabilityService: 1 - refusalAppsCount / allApps,
-		freeTimeCount,
-	}
-	data.push(parameters)
-	///===========calc parameters============
+	
 	//////==========functions=====================
 	function redistributionChannels(apps, i) {
 		if (apps.length) {
