@@ -2,7 +2,7 @@ let data = []
 
 statisticCalcParam()
 
-
+//imitation()
 function imitation() {
 	const time = 3600 //с
 	const lambda = 0.09445
@@ -21,6 +21,11 @@ function imitation() {
 	////=======main cycle==================
 
 	for (let i = 0; i <= time; i++) {
+
+		if (i === 500) {
+			debugger
+		}
+
 		apps = apps.length
 			? apps.filter((app) => {
 					if (app.serviceTime + app.arrivalTimeApp === i) {
@@ -41,9 +46,9 @@ function imitation() {
 
 		if (i === timeNewApp) {
 			allApps++
-			debugger
+			
 			timeNewApp = getTimeNewApp(i)
-
+			debugger
 			if (apps.length === n) {
 				refusalAppsCount++
 			} else {
@@ -118,6 +123,7 @@ function imitation() {
 		probabilityService: 1 - refusalAppsCount / allApps,
 		freeTimeCount,
 		probabilityChannelBusyTime,
+		countApps: countApps.length
 	}
 	data.push(parameters)
 	///===========calc parameters============
@@ -189,7 +195,7 @@ function imitation() {
 	}
 
 	function getTimeNewApp(i) {
-		return i + Math.round((-1 / lambda) * Math.log(getRandom()))
+		return i + Math.round((-1 / (lambda) ) * Math.log(getRandom()))
 	}
 
 	function getServiceTime(l) {
@@ -198,14 +204,14 @@ function imitation() {
 
 	function getRandom() {
 		let min = 0.0000000001
-		let max = 0.9999999999
+		let max = 0.9
 		return Math.random() * (max - min) + min
 	}
 }
 
 
 function statisticCalcParam() {
-	for (let i = 0; i < 1000; i++) {
+	for (let i = 0; i < 100; i++) {
 		imitation()
 	}
 	data.sort((prev, next) => {
@@ -223,8 +229,10 @@ function statisticCalcParam() {
 	let sumFreeTime = 0
 	let channelBusyTime = 0
 	let countApps = 0
+	let countDoneApps = 0
 
 	mostWorkingChannels.forEach((app) => {
+		countDoneApps += app.countApps
 		countApps += app.allApps
 		sumProbServ += app.probabilityService
 		sumFreeTime += app.freeTimeCount
@@ -236,6 +244,8 @@ function statisticCalcParam() {
 	let midProbBusyChannel = channelBusyTime / 10
 
 	console.log('\n')
+	console.log(mostWorkingChannels[0].allApps)
+	console.log(`среднее количество обслуженных заявок: ${countDoneApps / 10}`)
 	console.log(`среднее количество пришедших заявок: ${countApps / 10}`)
 	console.log(`средняя вероятность обслуживания: ${midProbServ}`)
 	console.log(`среднее время простоя: ${midFreeTime / 60} мин`)
