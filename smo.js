@@ -1,11 +1,45 @@
+let data = []
 
+statisticCalcParam()
 
+function statisticCalcParam() {
+	for (let i = 0; i < 1000; i++) {
+		imitation()
+	}
+	data.sort((prev, next) => {
+		if (prev.allApps < next.allApps) {
+			return 1
+		}
+		if (prev.allApps > next.allApps) {
+			return -1
+		}
+		return 0
+	})
+
+	let mostWorkingChannels = data.splice(0,9)
+	let sumProbServ = 0
+	let sumFreeTime = 0
+
+	mostWorkingChannels.forEach((app) => {
+		sumProbServ += app.probabilityService
+		sumFreeTime += app.freeTimeCount
+	})
+
+	let midProbServ = sumProbServ / 10
+	let midFreeTime = sumFreeTime / 10
+
+	console.log("\n");
+	console.log(`средняя вероятность обслуживания: ${midProbServ}`)
+	console.log(`среднее время простоя: ${midFreeTime}`)
+	console.log('\n')
+
+}
 
 function imitation() {
-	const time = 3600 //с
-	const lambda = 0.094
-	const mu = 0.014
-	const n = 3
+	const time = 36000 //с
+	const lambda = 0.09445
+	const mu = 0.01425
+	const n = 5
 	const l = 3
 
 	let freeChannels = n
@@ -110,7 +144,12 @@ function imitation() {
 	}
 	////=======main cycle==================
 	///===========calc parameters============
-	
+	const parameters = {
+		allApps,
+		probabilityService: 1 - refusalAppsCount / allApps,
+		freeTimeCount,
+	}
+	data.push(parameters)
 	///===========calc parameters============
 	//////==========functions=====================
 	function redistributionChannels(apps, i) {
@@ -196,10 +235,3 @@ function imitation() {
 
 
 
-
-
-console.log('заявки с отказом' + ' ' + refusalAppsCount)
-console.log('время простоя' + ' ' + freeTimeCount)
-console.log('выполненные заявки' + ' ' + countApps.length)
-console.log('Все пришедшие заявки' + ' ' + allApps)
-console.log(`Вероятность обслуживания: ${1 - refusalAppsCount / allApps}`)
