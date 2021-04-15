@@ -1,4 +1,3 @@
-let data = []
 
 statisticCalcParam()
 
@@ -7,7 +6,7 @@ function imitation() {
 	const time = 3600 //с
 	const lambda = 0.09445
 	const mu = 0.01425
-	const n = 3
+	const n = 6
 	const l = 3
 
 	let freeChannels = n
@@ -21,10 +20,6 @@ function imitation() {
 	////=======main cycle==================
 
 	for (let i = 0; i <= time; i++) {
-
-		if (i === 500) {
-			debugger
-		}
 
 		apps = apps.length
 			? apps.filter((app) => {
@@ -48,7 +43,7 @@ function imitation() {
 			allApps++
 			
 			timeNewApp = getTimeNewApp(i)
-			debugger
+			
 			if (apps.length === n) {
 				refusalAppsCount++
 			} else {
@@ -118,14 +113,13 @@ function imitation() {
 	////=======main cycle==================
 	///===========calc parameters============
 	let probabilityChannelBusyTime =(time - freeTimeCount) / time / n
-	const parameters = {
+	return {
 		allApps,
 		probabilityService: 1 - refusalAppsCount / allApps,
 		freeTimeCount,
 		probabilityChannelBusyTime,
 		countApps: countApps.length
 	}
-	data.push(parameters)
 	///===========calc parameters============
 	//////==========functions=====================
 	function redistributionChannels(apps, i) {
@@ -211,8 +205,10 @@ function imitation() {
 
 
 function statisticCalcParam() {
+	let data = []
+
 	for (let i = 0; i < 100; i++) {
-		imitation()
+		data.push(imitation())
 	}
 	data.sort((prev, next) => {
 		if (prev.allApps < next.allApps) {
@@ -228,12 +224,12 @@ function statisticCalcParam() {
 	let sumProbServ = 0
 	let sumFreeTime = 0
 	let channelBusyTime = 0
-	let countApps = 0
-	let countDoneApps = 0
-
+	let allApps = 0
+	let doneApps = 0
+	
 	mostWorkingChannels.forEach((app) => {
-		countDoneApps += app.countApps
-		countApps += app.allApps
+		allApps += app.allApps
+		doneApps += app.countApps
 		sumProbServ += app.probabilityService
 		sumFreeTime += app.freeTimeCount
 		channelBusyTime += app.probabilityChannelBusyTime
@@ -244,11 +240,11 @@ function statisticCalcParam() {
 	let midProbBusyChannel = channelBusyTime / 10
 
 	console.log('\n')
-	console.log(mostWorkingChannels[0].allApps)
-	console.log(`среднее количество обслуженных заявок: ${countDoneApps / 10}`)
-	console.log(`среднее количество пришедших заявок: ${countApps / 10}`)
+	console.log(allApps / 10)
+	console.log(doneApps / 10)
 	console.log(`средняя вероятность обслуживания: ${midProbServ}`)
-	console.log(`среднее время простоя: ${midFreeTime / 60} мин`)
-	console.log(`Вероятность занятости канала: ${midProbBusyChannel} мин`)
+	console.log(`среднее время простоя: ${midFreeTime } сек`)
+	console.log(`Вероятность занятости системы: ${(3600 - midFreeTime) / 3600} `)
+	console.log(`Вероятность занятости канала: ${midProbBusyChannel} `)
 	console.log('\n')
 }
