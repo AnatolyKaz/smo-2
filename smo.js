@@ -1,4 +1,3 @@
-
 statisticCalcParam()
 
 //imitation()
@@ -6,7 +5,7 @@ function imitation() {
 	const time = 3600 //с
 	const lambda = 0.09445
 	const mu = 0.01425
-	const n = 6
+	const n = 4
 	const l = 3
 
 	let freeChannels = n
@@ -20,7 +19,6 @@ function imitation() {
 	////=======main cycle==================
 
 	for (let i = 0; i <= time; i++) {
-
 		apps = apps.length
 			? apps.filter((app) => {
 					if (app.serviceTime + app.arrivalTimeApp === i) {
@@ -30,7 +28,7 @@ function imitation() {
 					} else {
 						return 1
 					}
-			})
+			  })
 			: apps
 
 		if (freeChannels) {
@@ -41,9 +39,9 @@ function imitation() {
 
 		if (i === timeNewApp) {
 			allApps++
-			
+
 			timeNewApp = getTimeNewApp(i)
-			
+
 			if (apps.length === n) {
 				refusalAppsCount++
 			} else {
@@ -73,7 +71,7 @@ function imitation() {
 
 				if ((apps.length + 1) * l > n && apps.length < n) {
 					if (apps.length > 1) {
-						apps = sortByWorkingChannels(apps, '>')
+						apps = sortByWorkingChannels(apps)
 
 						if (apps[0].workingChannels > 1) {
 							let recalcChannels = recalcServiceTimeApp(
@@ -96,10 +94,9 @@ function imitation() {
 						newApp = recalcChannels.newApp
 						apps.push(newApp)
 					} else {
-						let remainderChannels = n - apps[0].workingChannels
-
-						newApp.serviceTime = getServiceTime(remainderChannels)
-						newApp.workingChannels = remainderChannels
+						newApp.serviceTime = getServiceTime(freeChannels)
+						newApp.workingChannels = freeChannels
+						freeChannels = 0
 						apps.push(newApp)
 					}
 				}
@@ -112,29 +109,27 @@ function imitation() {
 	}
 	////=======main cycle==================
 	///===========calc parameters============
-	let probabilityChannelBusyTime =(time - freeTimeCount) / time / n
+	let probabilityChannelBusyTime = (time - freeTimeCount) / time / n
 	return {
 		allApps,
 		probabilityService: 1 - refusalAppsCount / allApps,
 		freeTimeCount,
 		probabilityChannelBusyTime,
-		countApps: countApps.length
+		countApps: countApps.length,
 	}
 	///===========calc parameters============
 	//////==========functions=====================
 	function redistributionChannels(apps, i) {
 		if (apps.length) {
-			apps = sortByWorkingChannels(apps, '<')
-
 			for (let j = 0; j < apps.length; j++) {
 				while (freeChannels) {
-					if (apps[j].workingChannels < 3) {
+					if (apps[j].workingChannels < l) {
 						apps[j].workingChannels += 1
 						freeChannels -= 1
 						apps[j].serviceTime =
 							i -
-							apps[0].arrivalTimeApp +
-							getServiceTime(apps[0].workingChannels)
+							apps[j].arrivalTimeApp +
+							getServiceTime(apps[j].workingChannels)
 					} else {
 						break
 					}
@@ -145,29 +140,16 @@ function imitation() {
 		return apps
 	}
 
-	function sortByWorkingChannels(apps, marker) {
-		if (marker === '>') {
-			apps.sort((prev, next) => {
-				if (prev.workingChannels < next.workingChannels) {
-					return 1
-				}
-				if (prev.workingChannels > next.workingChannels) {
-					return -1
-				}
-				return 0
-			})
-		}
-		if (marker === '<') {
-			apps.sort((prev, next) => {
-				if (prev.workingChannels < next.workingChannels) {
-					return 1
-				}
-				if (prev.workingChannels > next.workingChannels) {
-					return -1
-				}
-				return 0
-			})
-		}
+	function sortByWorkingChannels(apps) {
+		apps.sort((prev, next) => {
+			if (prev.workingChannels < next.workingChannels) {
+				return 1
+			}
+			if (prev.workingChannels > next.workingChannels) {
+				return -1
+			}
+			return 0
+		})
 
 		return apps
 	}
@@ -189,7 +171,7 @@ function imitation() {
 	}
 
 	function getTimeNewApp(i) {
-		return i + Math.round((-1 / (lambda) ) * Math.log(getRandom()))
+		return i + Math.round((-1 / lambda) * Math.log(getRandom()))
 	}
 
 	function getServiceTime(l) {
@@ -202,7 +184,6 @@ function imitation() {
 		return Math.random() * (max - min) + min
 	}
 }
-
 
 function statisticCalcParam() {
 	let data = []
@@ -226,7 +207,7 @@ function statisticCalcParam() {
 	let channelBusyTime = 0
 	let allApps = 0
 	let doneApps = 0
-	
+
 	mostWorkingChannels.forEach((app) => {
 		allApps += app.allApps
 		doneApps += app.countApps
@@ -243,8 +224,10 @@ function statisticCalcParam() {
 	console.log(allApps / 10)
 	console.log(doneApps / 10)
 	console.log(`средняя вероятность обслуживания: ${midProbServ}`)
-	console.log(`среднее время простоя: ${midFreeTime } сек`)
-	console.log(`Вероятность занятости системы: ${(3600 - midFreeTime) / 3600} `)
+	console.log(`среднее время простоя: ${midFreeTime} сек`)
+	console.log(
+		`Вероятность занятости системы: ${(3600 - midFreeTime) / 3600} `
+	)
 	console.log(`Вероятность занятости канала: ${midProbBusyChannel} `)
 	console.log('\n')
 }
