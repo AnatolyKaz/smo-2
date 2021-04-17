@@ -1,6 +1,6 @@
 statisticCalcParam(3, 6)
 
-//imitation()
+//==============imitation=================
 function imitation(currentN) {
 	const time = 3600 //с
 	const lambda = 0.09445
@@ -184,7 +184,9 @@ function imitation(currentN) {
 		return Math.random() * (max - min) + min
 	}
 }
+//==============imitation=================
 
+///==============calc statistic===============
 function statisticCalcParam(n1, n2) {
 
 	for (let index = n1; index <= n2; index++) {
@@ -235,3 +237,4 @@ function statisticCalcParam(n1, n2) {
 	}
 	
 }
+///==============calc statistic===============
