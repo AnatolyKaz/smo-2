@@ -1,11 +1,11 @@
-statisticCalcParam()
+statisticCalcParam(3, 6)
 
 //imitation()
-function imitation() {
+function imitation(currentN) {
 	const time = 3600 //с
 	const lambda = 0.09445
 	const mu = 0.01425
-	const n = 4
+	const n = currentN
 	const l = 3
 
 	let freeChannels = n
@@ -185,49 +185,53 @@ function imitation() {
 	}
 }
 
-function statisticCalcParam() {
-	let data = []
+function statisticCalcParam(n1, n2) {
 
-	for (let i = 0; i < 100; i++) {
-		data.push(imitation())
+	for (let index = n1; index <= n2; index++) {
+		let data = []
+
+		for (let i = 0; i < 100; i++) {
+			data.push(imitation(index))
+		}
+		data.sort((prev, next) => {
+			if (prev.allApps < next.allApps) {
+				return 1
+			}
+			if (prev.allApps > next.allApps) {
+				return -1
+			}
+			return 0
+		})
+
+		let mostWorkingChannels = data.splice(0, 9)
+		let sumProbServ = 0
+		let sumFreeTime = 0
+		let channelBusyTime = 0
+		let allApps = 0
+		let doneApps = 0
+
+		mostWorkingChannels.forEach((app) => {
+			allApps += app.allApps
+			doneApps += app.countApps
+			sumProbServ += app.probabilityService
+			sumFreeTime += app.freeTimeCount
+			channelBusyTime += app.probabilityChannelBusyTime
+		})
+
+		let midProbServ = sumProbServ / 10
+		let midFreeTime = sumFreeTime / 10
+		let midProbBusyChannel = channelBusyTime / 10
+
+		console.log('\n')
+		console.log(allApps / 10)
+		console.log(doneApps / 10)
+		console.log(`средняя вероятность обслуживания: ${midProbServ}`)
+		console.log(`среднее время простоя: ${midFreeTime} сек`)
+		console.log(
+			`Вероятность занятости системы: ${(3600 - midFreeTime) / 3600} `
+		)
+		console.log(`Вероятность занятости канала: ${midProbBusyChannel} `)
+		console.log('\n')
 	}
-	data.sort((prev, next) => {
-		if (prev.allApps < next.allApps) {
-			return 1
-		}
-		if (prev.allApps > next.allApps) {
-			return -1
-		}
-		return 0
-	})
-
-	let mostWorkingChannels = data.splice(0, 9)
-	let sumProbServ = 0
-	let sumFreeTime = 0
-	let channelBusyTime = 0
-	let allApps = 0
-	let doneApps = 0
-
-	mostWorkingChannels.forEach((app) => {
-		allApps += app.allApps
-		doneApps += app.countApps
-		sumProbServ += app.probabilityService
-		sumFreeTime += app.freeTimeCount
-		channelBusyTime += app.probabilityChannelBusyTime
-	})
-
-	let midProbServ = sumProbServ / 10
-	let midFreeTime = sumFreeTime / 10
-	let midProbBusyChannel = channelBusyTime / 10
-
-	console.log('\n')
-	console.log(allApps / 10)
-	console.log(doneApps / 10)
-	console.log(`средняя вероятность обслуживания: ${midProbServ}`)
-	console.log(`среднее время простоя: ${midFreeTime} сек`)
-	console.log(
-		`Вероятность занятости системы: ${(3600 - midFreeTime) / 3600} `
-	)
-	console.log(`Вероятность занятости канала: ${midProbBusyChannel} `)
-	console.log('\n')
+	
 }
