@@ -225,13 +225,8 @@ function statisticCalcParam(n1, n2) {
 		let midProbBusyChannel = channelBusyTime / 10
 
 		console.log('\n')
-		console.log(allApps / 10)
-		console.log(doneApps / 10)
-		console.log(`средняя вероятность обслуживания: ${midProbServ}`)
-		console.log(`среднее время простоя: ${midFreeTime} сек`)
-		console.log(
-			`Вероятность занятости системы: ${(3600 - midFreeTime) / 3600} `
-		)
+		console.log(`Вероятность обслуживания: ${midProbServ}`)
+		console.log(`Время простоя канала: ${midFreeTime / index} сек`)
 		console.log(`Вероятность занятости канала: ${midProbBusyChannel} `)
 		console.log('\n')
 	}
