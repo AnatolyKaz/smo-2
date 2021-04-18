@@ -15,7 +15,7 @@ function imitation(currentN) {
 	let refusalAppsCount = 0 // количество заявок с отказом
 	let freeTimeCount = 0 //время простоя системы
 	let apps = [] //массив заявок на обслуживании
-
+	let midFreeChannels = []
 	////=======main cycle==================
 
 	for (let i = 0; i <= time; i++) {
@@ -102,6 +102,7 @@ function imitation(currentN) {
 				}
 			}
 		}
+		midFreeChannels.push(freeChannels)
 
 		if (!apps.length && i) {
 			freeTimeCount++
@@ -110,12 +111,17 @@ function imitation(currentN) {
 	////=======main cycle==================
 	///===========calc parameters============
 	let probabilityChannelBusyTime = (time - freeTimeCount) / time / n
+	let i = midFreeChannels.reduce((acc, current) => (acc += current))
+	let b = i / n
+	midFreeChannels = i  / midFreeChannels.length
 	return {
 		allApps,
 		probabilityService: 1 - refusalAppsCount / allApps,
 		freeTimeCount,
 		probabilityChannelBusyTime,
 		countApps: countApps.length,
+		midFreeChannels,
+		b
 	}
 	///===========calc parameters============
 	//////==========functions=====================
@@ -211,6 +217,8 @@ function statisticCalcParam(n1, n2) {
 		let channelBusyTime = 0
 		let allApps = 0
 		let doneApps = 0
+		let freeChannels = 0
+		let b = 0
 
 		mostWorkingChannels.forEach((app) => {
 			allApps += app.allApps
@@ -218,6 +226,8 @@ function statisticCalcParam(n1, n2) {
 			sumProbServ += app.probabilityService
 			sumFreeTime += app.freeTimeCount
 			channelBusyTime += app.probabilityChannelBusyTime
+			freeChannels += app.midFreeChannels
+			b += app.b
 		})
 
 		let midProbServ = sumProbServ / 10
@@ -227,8 +237,9 @@ function statisticCalcParam(n1, n2) {
 		console.log('\n')
 		console.log(`Вероятность обслуживания: ${midProbServ}`)
 		console.log(`Время простоя канала: ${midFreeTime / index} сек`)
-		console.log(`Вероятность занятости канала: ${midProbBusyChannel} `)
-		console.log('\n')
+		console.log(`Время простоя канала: ${b / 10} сек`)
+		console.log(`среднее количество занятых каналов: ${index - freeChannels } `)
+		console.log(`Вероятность занятости канала: ${(index - freeChannels) / index} `)
 	}
 	
 }
