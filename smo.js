@@ -113,7 +113,7 @@ function imitation(currentN) {
 	let probabilityChannelBusyTime = (time - freeTimeCount) / time / n
 	let i = midFreeChannels.reduce((acc, current) => (acc += current))
 	let b = i / n
-	midFreeChannels = i  / midFreeChannels.length
+	midFreeChannels = i / midFreeChannels.length
 	return {
 		allApps,
 		probabilityService: 1 - refusalAppsCount / allApps,
@@ -121,7 +121,7 @@ function imitation(currentN) {
 		probabilityChannelBusyTime,
 		countApps: countApps.length,
 		midFreeChannels,
-		b
+		b,
 	}
 	///===========calc parameters============
 	//////==========functions=====================
@@ -194,6 +194,9 @@ function imitation(currentN) {
 
 ///==============calc statistic===============
 function statisticCalcParam(n1, n2) {
+	let pirsonStatService = 0
+	let pirsonStatWorkCh = 0
+	let pirsonStatFreeTimeCh = 0
 
 	for (let index = n1; index <= n2; index++) {
 		let data = []
@@ -211,36 +214,63 @@ function statisticCalcParam(n1, n2) {
 			return 0
 		})
 
-		let mostWorkingChannels = data.splice(0, 9)
 		let sumProbServ = 0
-		let sumFreeTime = 0
-		let channelBusyTime = 0
-		let allApps = 0
-		let doneApps = 0
 		let freeChannels = 0
 		let b = 0
 
-		mostWorkingChannels.forEach((app) => {
-			allApps += app.allApps
-			doneApps += app.countApps
+		let p1 = 0 ///результаты аналитического моделирования для вероятности обслуживания
+		let p2 = 0 ///результаты аналитического моделирования для вероятности занятости канала
+
+		switch (index) {
+			case n1:
+				p1 = 0.429
+				p2 = 0.947
+				break
+			case n1 + 1:
+				p1 = 0.569
+				p2 = 0.919
+				break
+			case n1 + 2:
+				p1 = 0.743
+				p2 = 0.83
+				break
+			case n2:
+				p1 = 0.845
+				p2 = 0.735
+				break
+		}
+
+		data.forEach((app) => {
 			sumProbServ += app.probabilityService
-			sumFreeTime += app.freeTimeCount
-			channelBusyTime += app.probabilityChannelBusyTime
 			freeChannels += app.midFreeChannels
 			b += app.b
 		})
 
-		let midProbServ = sumProbServ / 10
-		let midFreeTime = sumFreeTime / 10
-		let midProbBusyChannel = channelBusyTime / 10
+		let midProbServ = sumProbServ / 100
+
+		pirsonStatService += Math.pow(midProbServ - p1, 2) / p1
+		pirsonStatWorkCh +=
+			Math.pow((index - freeChannels / 100) / index - p2, 2) / p2
 
 		console.log('\n')
 		console.log(`Вероятность обслуживания: ${midProbServ}`)
-		console.log(`Время простоя канала: ${midFreeTime / index} сек`)
-		console.log(`Время простоя канала: ${b / 10} сек`)
-		console.log(`среднее количество занятых каналов: ${index - freeChannels } `)
-		console.log(`Вероятность занятости канала: ${(index - freeChannels) / index} `)
+		console.log(`Время простоя канала: ${b / 100} сек`)
+		console.log(
+			`Вероятность занятости канала: ${
+				(index - freeChannels / 100) / index
+			} `
+		)
 	}
-	
+	console.log('\n')
+	console.log(
+		`Критерий пирсона для вероятности обслуживания: ${pirsonStatService}`
+	)
+	console.log(
+		`Критерий пирсона для вероятности занятости канала: ${pirsonStatWorkCh}`
+	)
+	console.log(
+		`Критерий пирсона для среднего времени простоя канала : ${pirsonStatFreeTimeCh}`
+	)
+	console.log('\n')
 }
 ///==============calc statistic===============
