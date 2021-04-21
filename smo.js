@@ -194,10 +194,6 @@ function imitation(currentN) {
 
 ///==============calc statistic===============
 function statisticCalcParam(n1, n2) {
-	let pirsonStatService = 0
-	let pirsonStatWorkCh = 0
-	let pirsonStatFreeTimeCh = 0
-
 	for (let index = n1; index <= n2; index++) {
 		let data = []
 
@@ -218,28 +214,6 @@ function statisticCalcParam(n1, n2) {
 		let freeChannels = 0
 		let b = 0
 
-		let p1 = 0 ///результаты аналитического моделирования для вероятности обслуживания
-		let p2 = 0 ///результаты аналитического моделирования для вероятности занятости канала
-
-		switch (index) {
-			case n1:
-				p1 = 0.429
-				p2 = 0.947
-				break
-			case n1 + 1:
-				p1 = 0.569
-				p2 = 0.919
-				break
-			case n1 + 2:
-				p1 = 0.743
-				p2 = 0.83
-				break
-			case n2:
-				p1 = 0.845
-				p2 = 0.735
-				break
-		}
-
 		data.forEach((app) => {
 			sumProbServ += app.probabilityService
 			freeChannels += app.midFreeChannels
@@ -247,10 +221,6 @@ function statisticCalcParam(n1, n2) {
 		})
 
 		let midProbServ = sumProbServ / 100
-
-		pirsonStatService += Math.pow(midProbServ - p1, 2) / p1
-		pirsonStatWorkCh +=
-			Math.pow((index - freeChannels / 100) / index - p2, 2) / p2
 
 		console.log('\n')
 		console.log(`Вероятность обслуживания: ${midProbServ}`)
@@ -261,16 +231,5 @@ function statisticCalcParam(n1, n2) {
 			} `
 		)
 	}
-	console.log('\n')
-	console.log(
-		`Критерий пирсона для вероятности обслуживания: ${pirsonStatService}`
-	)
-	console.log(
-		`Критерий пирсона для вероятности занятости канала: ${pirsonStatWorkCh}`
-	)
-	console.log(
-		`Критерий пирсона для среднего времени простоя канала : ${pirsonStatFreeTimeCh}`
-	)
-	console.log('\n')
 }
 ///==============calc statistic===============
