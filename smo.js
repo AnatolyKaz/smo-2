@@ -1,4 +1,4 @@
-statisticCalcParam(3, 6)
+statisticCalcParam(3, 3)
 
 //==============imitation=================
 function imitation(currentN) {
@@ -10,7 +10,7 @@ function imitation(currentN) {
 
 	let freeChannels = n
 	let countApps = [] //обслуженные заявки
-	let allApps = 0
+	let allApps = 0 // количество заявок пришедших в систему
 	let timeNewApp = 0 //время прихода новой заявки
 	let refusalAppsCount = 0 // количество заявок с отказом
 	let freeTimeCount = 0 //время простоя системы
@@ -30,6 +30,8 @@ function imitation(currentN) {
 					}
 			  })
 			: apps
+
+		allMidFreeChannels.push(freeChannels)
 
 		if (freeChannels) {
 			apps = redistributionChannels(apps, i)
@@ -102,7 +104,7 @@ function imitation(currentN) {
 				}
 			}
 		}
-		allMidFreeChannels.push(freeChannels)
+		
 
 		if (!apps.length && i) {
 			freeTimeCount++
@@ -112,8 +114,9 @@ function imitation(currentN) {
 	///===========calc parameters============
 
 	let sumMidFreeCh = allMidFreeChannels.reduce((acc, current) => (acc += current))
-	let freeTimeCh = sumMidFreeCh / n
 	let midFreeChannels = sumMidFreeCh / allMidFreeChannels.length
+	let freeTimeCh = sumMidFreeCh / n
+	
 	return {
 		probabilityService: 1 - refusalAppsCount / allApps,
 		midFreeChannels,
@@ -192,8 +195,8 @@ function imitation(currentN) {
 function statisticCalcParam(n1, n2) {
 	for (let index = n1; index <= n2; index++) {
 		let data = []
-
-		for (let i = 0; i < 100; i++) {
+		let countImitations = 20
+		for (let i = 0; i < countImitations; i++) {
 			data.push(imitation(index))
 		}
 		data.sort((prev, next) => {
@@ -216,14 +219,19 @@ function statisticCalcParam(n1, n2) {
 			freeTimeCh += app.freeTimeCh
 		})
 
-		let midProbServ = sumProbServ / 100
+		let midProbServ = sumProbServ / countImitations
+		let a = 0
+		data.forEach((app) => a+= Math.pow(app.probabilityService - midProbServ, 2))
+
+		a = Math.sqrt(a / countImitations)
 
 		console.log('\n')
+		console.log(a);
 		console.log(`Вероятность обслуживания: ${midProbServ}`)
-		console.log(`Время простоя канала: ${freeTimeCh / 100} сек`)
+		console.log(`Время простоя канала: ${freeTimeCh / countImitations} сек`)
 		console.log(
 			`Вероятность занятости канала: ${
-				(index - freeChannels / 100) / index
+				(index - freeChannels / countImitations) / index
 			} `
 		)
 	}
